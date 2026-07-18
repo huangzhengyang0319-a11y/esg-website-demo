@@ -92,40 +92,77 @@
     </div>
     <!-- 注入网页的灵魂：JavaScript 交互逻辑 -->
     <script>
-        // 1. 获取所有的一级菜单和二级菜单
-        const menuItems = document.querySelectorAll('.menu-item');
-        const subMenuItems = document.querySelectorAll('.sub-menu-item');
-        
-        // 2. 为每个一级菜单添加点击事件
-        menuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // 找到当前点击的一级菜单下面的子菜单
-                const subMenu = this.nextElementSibling;
-                
-                // 核心魔法：切换子菜单的显示和隐藏状态
-                if (subMenu.style.display === 'block') {
-                    subMenu.style.display = 'none'; // 如果已经展开，就收起
-                } else {
-                    subMenu.style.display = 'block'; // 如果隐藏着，就展开
-                }
-            });
-        });
-        
-        // 3. 为每个二级菜单添加点击事件，实现右侧内容切换
-        subMenuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // 移除其他项的选中高亮状态
-                subMenuItems.forEach(sub => sub.classList.remove('active'));
-                // 给当前点击的项添加高亮
-                this.classList.add('active');
-                
-                // 获取当前点击项里的自定义数据，并更新右侧内容区
-                const title = this.getAttribute('data-title');
-                const content = this.getAttribute('data-content');
-                document.getElementById('content-title').innerText = title;
-                document.getElementById('content-text').innerText = content;
-            });
-        });
+    <script>
+        // 1. 获取页面上的 DOM 元素
+        const sidebar = document.querySelector('.sidebar');
+        const contentTitle = document.getElementById('content-title');
+        const contentText = document.getElementById('content-text');
+
+        // 2. 页面加载时，自动去 Python 后端“要数据”
+        async function loadESGData() {
+            try {
+                // 向后端发送请求
+                const response = await fetch('http://127.0.0.1:5000/api/esg');
+                const esgData = await response.json(); // 拿到 JSON 数据
+
+                // 清空左侧目录，准备重新生成
+                sidebar.innerHTML = '<h2>🌍 ESG 披露目录</h2>';
+
+                // 3. 遍历拿到的数据，动态生成左侧的多级目录
+                esgData.forEach(category => {
+                    // 生成一级目录
+                    const menuItem = document.createElement('div');
+                    menuItem.className = 'menu-item';
+                    menuItem.innerText = category.title;
+                    sidebar.appendChild(menuItem);
+
+                    // 生成二级目录的容器
+                    const subMenu = document.createElement('div');
+                    subMenu.className = 'sub-menu';
+                    sidebar.appendChild(subMenu);
+
+                    // 遍历子数据，生成二级菜单
+                    category.children.forEach((child, index) => {
+                        const subMenuItem = document.createElement('div');
+                        subMenuItem.className = 'sub-menu-item';
+                        subMenuItem.innerText = child.title;
+                        
+                        // 默认让第一个分类的第一个子项高亮并显示内容
+                        if (category === esgData[0] && index === 0) {
+                            subMenuItem.classList.add('active');
+                            contentTitle.innerText = child.title;
+                            contentText.innerText = child.content;
+                        }
+
+                        // 给二级菜单绑定点击事件，切换右侧内容
+                        subMenuItem.addEventListener('click', function() {
+                            // 移除所有高亮
+                            document.querySelectorAll('.sub-menu-item').forEach(sub => sub.classList.remove('active'));
+                            this.classList.add('active');
+                            
+                            // 更新右侧内容
+                            contentTitle.innerText = child.title;
+                            contentText.innerText = child.content;
+                        });
+
+                        subMenu.appendChild(subMenuItem);
+                    });
+
+                    // 给一级菜单绑定点击事件，展开/收起
+                    menuItem.addEventListener('click', function() {
+                        subMenu.style.display = subMenu.style.display === 'block' ? 'none' : 'block';
+                    });
+                });
+            } catch (error) {
+                console.error('获取 ESG 数据失败，请确保 Python 后端已启动:', error);
+                contentTitle.innerText = '数据加载失败';
+                contentText.innerText = '请确保 Python 后端正在运行，并刷新页面重试。';
+            }
+        }
+
+        // 4. 启动加载数据
+        loadESGData();
+    </script>
     </script>
 </body>
 </html>
