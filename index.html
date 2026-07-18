@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业ESG信息披露平台</title>
+    <!-- 引入CSS样式 -->
+    <style>
+        /* 1. 全局重置与基础设置 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; display: flex; height: 100vh; background-color: #f4f6f9; color: #333; }
+
+        /* 2. 左侧导航栏样式 */
+        .sidebar {
+            width: 280px;
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 18px;
+            padding: 0 20px 20px;
+            color: #1a73e8;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+        /* 一级目录样式 */
+        .menu-item {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .menu-item:hover { background-color: #f0f7ff; color: #1a73e8; }
+        
+        /* 二级目录样式 */
+        .sub-menu { display: none; background-color: #fafafa; }
+        .sub-menu-item {
+            padding: 10px 20px 10px 40px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sub-menu-item:hover { background-color: #e8f0fe; color: #1a73e8; }
+        /* 当前选中的二级目录高亮 */
+        .sub-menu-item.active { background-color: #e8f0fe; color: #1a73e8; border-left: 3px solid #1a73e8; }
+
+        /* 3. 右侧内容区样式 */
+        .content-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .content-area h1 { font-size: 28px; margin-bottom: 20px; color: #202124; }
+        .content-area p { font-size: 16px; line-height: 1.8; color: #5f6368; }
+    </style>
+</head>
+<body>
+
+    <!-- 左侧多级目录区 -->
+    <div class="sidebar">
+        <h2>🌍 ESG 披露目录</h2>
+        
+        <!-- 环境(E) -->
+        <div class="menu-item">环境 (E)</div>
+        <div class="sub-menu">
+            <div class="sub-menu-item active" data-title="碳排放管理" data-content="2023年温室气体排放量同比下降5%，全面推广绿色办公。">碳排放管理</div>
+            <div class="sub-menu-item" data-title="水资源保护" data-content="优化生产用水循环系统，水资源重复利用率提升至85%。">水资源保护</div>
+        </div>
+        
+        <!-- 社会(S) -->
+        <div class="menu-item">社会 (S)</div>
+        <div class="sub-menu">
+            <div class="sub-menu-item" data-title="员工权益" data-content="全年员工培训时长达40小时，女性高管占比提升至30%。">员工权益</div>
+            <div class="sub-menu-item" data-title="社区公益" data-content="投入100万元用于乡村教育支持，开展20场志愿者活动。">社区公益</div>
+        </div>
+        
+        <!-- 治理(G) -->
+        <div class="menu-item">治理 (G)</div>
+        <div class="sub-menu">
+            <div class="sub-menu-item" data-title="商业道德" data-content="100%员工签署《反腐败合规承诺书》，零违规事件。">商业道德</div>
+            <div class="sub-menu-item" data-title="风险管理" data-content="建立全面风险预警机制，全年开展4次合规审查。">风险管理</div>
+        </div>
+    </div>
+
+    <!-- 右侧内容展示区 -->
+    <div class="content-area">
+        <h1 id="content-title">碳排放管理</h1>
+        <p id="content-text">2023年温室气体排放量同比下降5%，全面推广绿色办公。</p>
+    </div>
+    <!-- 注入网页的灵魂：JavaScript 交互逻辑 -->
+    <script>
+        // 1. 获取所有的一级菜单和二级菜单
+        const menuItems = document.querySelectorAll('.menu-item');
+        const subMenuItems = document.querySelectorAll('.sub-menu-item');
+        
+        // 2. 为每个一级菜单添加点击事件
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // 找到当前点击的一级菜单下面的子菜单
+                const subMenu = this.nextElementSibling;
+                
+                // 核心魔法：切换子菜单的显示和隐藏状态
+                if (subMenu.style.display === 'block') {
+                    subMenu.style.display = 'none'; // 如果已经展开，就收起
+                } else {
+                    subMenu.style.display = 'block'; // 如果隐藏着，就展开
+                }
+            });
+        });
+        
+        // 3. 为每个二级菜单添加点击事件，实现右侧内容切换
+        subMenuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除其他项的选中高亮状态
+                subMenuItems.forEach(sub => sub.classList.remove('active'));
+                // 给当前点击的项添加高亮
+                this.classList.add('active');
+                
+                // 获取当前点击项里的自定义数据，并更新右侧内容区
+                const title = this.getAttribute('data-title');
+                const content = this.getAttribute('data-content');
+                document.getElementById('content-title').innerText = title;
+                document.getElementById('content-text').innerText = content;
+            });
+        });
+    </script>
+</body>
+</html>
